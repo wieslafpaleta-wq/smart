@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#7c3aed" />
+  <meta name="description" content="Śledź nawyki i otrzymuj AI feedback" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HabitAI" />
+  <title>Smart Habit Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo"><span>⚡</span> HabitAI</div>
+    <div class="header-actions">
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Zmień motyw">☀️</button>
+    </div>
+  </header>
+
+  <!-- INSTALL BANNER -->
+  <div class="install-banner" id="install-banner">
+    <p>📱 Dodaj do ekranu głównego</p>
+    <button class="btn btn-outline" style="padding:6px 14px;font-size:0.78rem" onclick="installPWA()">Dodaj</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" data-tab="today" onclick="switchTab('today')">Dziś</button>
+    <button class="tab" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
+    <button class="tab" data-tab="calendar" onclick="switchTab('calendar')">Kalendarz</button>
+    <button class="tab" data-tab="habits" onclick="switchTab('habits')">Nawyki</button>
+    <button class="tab" data-tab="ai" onclick="switchTab('ai')">AI Analiza</button>
+    <button class="tab" data-tab="add" onclick="switchTab('add')">+ Dodaj</button>
+  </div>
+
+  <!-- ══ TODAY ══ -->
+  <section class="section active" id="section-today">
+    <div class="card" style="margin-bottom:16px">
+      <div class="section-title" style="margin-bottom:10px">📅 Dzisiejszy postęp</div>
+      <div id="today-progress-label" style="font-size:0.8rem;color:var(--text3);margin-bottom:8px">0/0 ukończonych</div>
+      <div class="chart-bar-track" style="height:14px">
+        <div class="chart-bar-fill" id="today-progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="section-title">Twoje nawyki</div>
+    <div id="today-habits"></div>
+
+    <button class="btn btn-primary" style="margin-top:8px" onclick="switchTab('add')">
+      + Dodaj nowy nawyk
+    </button>
+  </section>
+
+  <!-- ══ ADD HABIT ══ -->
+  <section class="section" id="section-add">
+    <div class="section-title">✨ Nowy nawyk</div>
+
+    <div class="card">
+      <div class="form-group">
+        <label class="form-label">Nazwa nawyku</label>
+        <input class="form-input" id="habit-name-input" type="text"
+          placeholder="np. Medytacja 10 min"
+          maxlength="50"
+          onkeydown="if(event.key==='Enter') addHabit()" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Kategoria</label>
+        <div class="category-grid" id="cat-grid"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Częstotliwość</label>
+        <div class="freq-grid" id="freq-grid"></div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:8px" onclick="addHabit()">
+        ✅ Zapisz nawyk
+      </button>
+    </div>
+  </section>
+
+  <!-- ══ DASHBOARD ══ -->
+  <section class="section" id="section-dashboard">
+    <div class="section-title">📊 Dashboard</div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-today">0</div>
+        <div class="stat-label">Dziś ✓</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-streak">0</div>
+        <div class="stat-label">Max streak 🔥</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">0</div>
+        <div class="stat-label">Łącznie ✓</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-week">0%</div>
+        <div class="stat-label">7-dniowa śr.</div>
+      </div>
+    </div>
+
+    <!-- Level -->
+    <div class="card">
+      <div class="level-bar-wrap">
+        <div class="level-info">
+          <span class="level-label" id="level-label">Level 1</span>
+          <span class="level-xp" id="level-xp">0 / 200 XP</span>
+        </div>
+        <div class="level-track">
+          <div class="level-fill" id="level-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly chart -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">📈 Ostatnie 7 dni</div>
+      <div class="week-chart" id="week-chart"
+        style="display:flex;align-items:flex-end;gap:5px;height:80px"></div>
+    </div>
+
+    <!-- Per-habit bars -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">🎯 Skuteczność nawyków (7 dni)</div>
+      <div id="habit-bars"></div>
+    </div>
+
+    <!-- Badges -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">🏆 Odznaki</div>
+      <div class="badges-grid" id="badges-container"></div>
+    </div>
+  </section>
+
+  <!-- ══ CALENDAR ══ -->
+  <section class="section" id="section-calendar">
+    <div class="section-title">📆 Kalendarz</div>
+
+    <div class="card">
+      <div class="calendar-header">
+        <button class="cal-nav" onclick="calPrev()">‹</button>
+        <div class="cal-month" id="cal-month-label"></div>
+        <button class="cal-nav" onclick="calNext()">›</button>
+      </div>
+
+      <div class="cal-grid">
+        <div class="cal-day-label">Pn</div>
+        <div class="cal-day-label">Wt</div>
+        <div class="cal-day-label">Śr</div>
+        <div class="cal-day-label">Cz</div>
+        <div class="cal-day-label">Pt</div>
+        <div class="cal-day-label">Sb</div>
+        <div class="cal-day-label">Nd</div>
+        <div id="cal-grid-body" style="display:contents"></div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3)">
+          <div style="width:12px;height:12px;border-radius:3px;background:var(--green)"></div> Wszystkie ✓
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3)">
+          <div style="width:12px;height:12px;border-radius:3px;background:rgba(245,158,11,0.3)"></div> Częściowo ✓
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:0.72rem;color:var(--text3)">
+          <div style="width:12px;height:12px;border-radius:3px;border:1px solid var(--purple)"></div> Dziś
+        </div>
+      </div>
+    </div>
+
+    <div id="habit-calendar-select"></div>
+  </section>
+
+  <!-- ══ HABIT MANAGEMENT ══ -->
+  <section class="section" id="section-habits">
+    <div class="section-title">🗂 Zarządzaj nawykami</div>
+    <div id="habits-list-manage"></div>
+  </section>
+
+  <!-- ══ AI ANALYSIS ══ -->
+  <section class="section" id="section-ai">
+    <div class="section-title">🤖 AI Analiza</div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title" style="margin-bottom:6px">Analiza tygodnia</div>
+      <p style="font-size:0.82rem;color:var(--text3);margin-bottom:14px;line-height:1.5">
+        AI przeanalizuje Twoje dane z ostatnich 7 dni i poda konkretne wskazówki dotyczące nawyków.
+      </p>
+      <button class="btn btn-ai" id="ai-btn" onclick="analyzeWeek()">
+        ✨ Analizuj tydzień
+      </button>
+    </div>
+
+    <div id="ai-result"></div>
+
+    <!-- Notifications -->
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px">🔔 Przypomnienia</div>
+      <div class="notif-row">
+        <div class="notif-info">
+          <div style="font-size:0.88rem;font-weight:500">Codzienne przypomnienie</div>
+          <p>Powiadomienie o 20:00</p>
+        </div>
+        <div class="toggle" id="notif-toggle" onclick="toggleNotifications()"></div>
+      </div>
+      <div style="margin-top:10px">
+        <span id="notif-status" style="font-size:0.8rem;color:var(--text3)">Wyłączone</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /#app -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-tab="today" onclick="switchTab('today')">
+    <span class="nav-icon">📅</span>Dziś
+  </button>
+  <button class="nav-item" data-tab="dashboard" onclick="switchTab('dashboard')">
+    <span class="nav-icon">📊</span>Stats
+  </button>
+  <button class="nav-item" data-tab="calendar" onclick="switchTab('calendar')">
+    <span class="nav-icon">📆</span>Kalen.
+  </button>
+  <button class="nav-item" data-tab="ai" onclick="switchTab('ai')">
+    <span class="nav-icon">🤖</span>AI
+  </button>
+  <button class="nav-item" data-tab="add" onclick="switchTab('add')">
+    <span class="nav-icon">＋</span>Dodaj
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- DAY MODAL -->
+<div class="modal-overlay" id="day-modal" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 Szczegóły dnia</div>
+    <div id="day-detail-content"></div>
+    <button class="btn btn-outline" style="margin-top:16px;width:100%" onclick="closeDayModal()">Zamknij</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

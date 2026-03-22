@@ -1,0 +1,26 @@
+{
+  "name": "Smart Habit Tracker",
+  "short_name": "HabitAI",
+  "description": "Śledź nawyki i otrzymuj feedback AI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%237c3aed'/><text x='50%' y='55%' font-size='100' text-anchor='middle' dominant-baseline='middle'>⚡</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%237c3aed'/><text x='50%' y='55%' font-size='280' text-anchor='middle' dominant-baseline='middle'>⚡</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "productivity"],
+  "lang": "pl"
+}
